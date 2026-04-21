@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ODS 14 - Vida Submarina | Sistema de Reportes</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+    <!-- Loader -->
+    <div id="loader" class="loader">
+        <div class="loader-content">
+            <div class="wave-loader">
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+            </div>
+            <p>Cargando Sistema ODS 14...</p>
+        </div>
+    </div>
+
+    <!-- Bubbles Background -->
+    <div class="bubbles-bg" id="bubblesBg"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo" onclick="showSection('home')">
+                <div class="logo-icon">
+                    <i class="fas fa-water"></i>
+                </div>
+                <span>ODS <strong>14</strong></span>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="#" class="nav-link active" data-section="home" onclick="showSection('home')">
+                    <i class="fas fa-home"></i> Inicio
+                </a>
+                <a href="#" class="nav-link" data-section="reports" onclick="showSection('reports')">
+                    <i class="fas fa-clipboard-list"></i> Reportes
+                </a>
+                <a href="#" class="nav-link" data-section="map" onclick="showSection('map')">
+                    <i class="fas fa-map-marked-alt"></i> Mapa
+                </a>
+                <a href="#" class="nav-link" data-section="stats" onclick="showSection('stats')">
+                    <i class="fas fa-chart-bar"></i> Estadísticas
+                </a>
+                <a href="#" class="nav-link" data-section="about" onclick="showSection('about')">
+                    <i class="fas fa-info-circle"></i> Acerca de
+                </a>
+            </div>
+            <div class="nav-actions">
+                <button class="btn-login" id="btnLogin" onclick="openModal('loginModal')">
+                    <i class="fas fa-sign-in-alt"></i> Ingresar
+                </button>
+                <button class="btn-user-menu" id="btnUserMenu" style="display:none;" onclick="toggleUserDropdown()">
+                    <div class="user-avatar" id="userAvatarNav">U</div>
+                    <span id="userNameNav">Usuario</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#" onclick="showSection('profile')"><i class="fas fa-user"></i> Mi Perfil</a>
+                    <a href="#" onclick="showSection('myreports')"><i class="fas fa-file-alt"></i> Mis Reportes</a>
+                    <a href="#" id="adminLink" style="display:none;" onclick="showSection('admin')">
+                        <i class="fas fa-shield-alt"></i> Panel Admin
+                    </a>
+                    <hr>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                </div>
+                <button class="nav-toggle" id="navToggle" onclick="toggleNav()">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ==================== SECTIONS ==================== -->
+
+    <!-- HOME -->
+    <section class="section active" id="sectionHome">
+        <div class="hero">
+            <div class="hero-particles" id="heroParticles"></div>
+            <div class="hero-content">
+                <div class="hero-badge animate-fade-down">
+                    <i class="fas fa-globe-americas"></i>
+                    Objetivo de Desarrollo Sostenible
+                </div>
+                <h1 class="hero-title animate-fade-up">
+                    Vida <span class="gradient-text">Submarina</span>
+                    <div class="title-decoration"></div>
+                </h1>
+                <p class="hero-subtitle animate-fade-up delay-1">
+                    Conservar y utilizar sosteniblemente los océanos, los mares y los recursos marinos para el
+                    desarrollo sostenible. Reporta amenazas y contribuye a proteger nuestros ecosistemas marinos.
+                </p>
+                <div class="hero-buttons animate-fade-up delay-2">
+                    <button class="btn btn-primary btn-lg" onclick="handleNewReport()">
+                        <i class="fas fa-plus-circle"></i> Crear Reporte
+                    </button>
+                    <button class="btn btn-outline btn-lg" onclick="showSection('map')">
+                        <i class="fas fa-map"></i> Ver Mapa
+                    </button>
+                </div>
+                <div class="hero-stats animate-fade-up delay-3">
+                    <div class="hero-stat" data-tooltip="Total de reportes registrados">
+                        <div class="hero-stat-number" id="statReports">0</div>
+                        <div class="hero-stat-label"><i class="fas fa-file-alt"></i> Reportes</div>
+                    </div>
+                    <div class="hero-stat" data-tooltip="Miembros activos de la comunidad">
+                        <div class="hero-stat-number" id="statUsers">0</div>
+                        <div class="hero-stat-label"><i class="fas fa-users"></i> Usuarios</div>
+                    </div>
+                    <div class="hero-stat" data-tooltip="Problemas ambientales resueltos">
+                        <div class="hero-stat-number" id="statResolved">0</div>
+                        <div class="hero-stat-label"><i class="fas fa-check-circle"></i> Resueltos</div>
+                    </div>
+                    <div class="hero-stat" data-tooltip="Zonas geográficas cubiertas">
+                        <div class="hero-stat-number" id="statRegions">0</div>
+                        <div class="hero-stat-label"><i class="fas fa-globe-americas"></i> Regiones</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual animate-fade-left">
+                <div class="ocean-scene">
+                    <div class="ocean-circle">
+                        <div class="fish fish-1"><i class="fas fa-fish"></i></div>
+                        <div class="fish fish-2"><i class="fas fa-fish"></i></div>
+                        <div class="fish fish-3"><i class="fas fa-fish"></i></div>
+                        <div class="seahorse"><i class="fas fa-horse"></i></div>
+                        <div class="coral coral-1">🪸</div>
+                        <div class="coral coral-2">🐚</div>
+                        <div class="coral coral-3">🦀</div>
+                        <div class="bubble-float b1"></div>
+                        <div class="bubble-float b2"></div>
+                        <div class="bubble-float b3"></div>
+                        <div class="bubble-float b4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="features-section">
+            <div class="container">
+                <div class="section-header animate-on-scroll">
+                    <span class="section-tag">Características</span>
+                    <h2>¿Cómo funciona nuestro sistema?</h2>
+                    <p>Herramientas poderosas para la protección marina</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card animate-on-scroll" style="--delay: 0.1s">
+                        <div class="feature-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <h3>Geolocalización</h3>
+                        <p>Marca la ubicación exacta del problema en nuestro mapa interactivo o usa tu ubicación actual
+                            con un clic.</p>
+                    </div>
+                    <div class="feature-card animate-on-scroll" style="--delay: 0.2s">
+                        <div class="feature-icon"><i class="fas fa-camera"></i></div>
+                        <h3>Evidencia Visual</h3>
+                        <p>Sube fotografías directamente desde tu dispositivo o pega un enlace como evidencia.</p>
+                    </div>
+                    <div class="feature-card animate-on-scroll" style="--delay: 0.3s">
+                        <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                        <h3>Seguimiento</h3>
+                        <p>Monitorea el estado de tus reportes y observa el progreso de las acciones tomadas.</p>
+                    </div>
+                    <div class="feature-card animate-on-scroll" style="--delay: 0.4s">
+                        <div class="feature-icon"><i class="fas fa-users"></i></div>
+                        <h3>Comunidad</h3>
+                        <p>Únete a una comunidad comprometida con la conservación de los ecosistemas marinos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Reports Preview -->
+        <div class="recent-section">
+            <div class="container">
+                <div class="section-header animate-on-scroll">
+                    <span class="section-tag">Últimos Reportes</span>
+                    <h2>Actividad Reciente</h2>
+                    <p>Los reportes más recientes de nuestra comunidad</p>
+                </div>
+                <div class="reports-preview-grid" id="recentReportsHome"></div>
+                <div class="text-center mt-4 animate-on-scroll">
+                    <button class="btn btn-primary" onclick="showSection('reports')">
+                        Ver Todos los Reportes <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REPORTS LIST -->
+    <section class="section" id="sectionReports">
+        <div class="container page-section">
+            <div class="section-header animate-on-scroll">
+                <span class="section-tag">Explorar</span>
+                <h2>Todos los Reportes</h2>
+                <p>Explora todos los reportes ambientales de la comunidad</p>
+            </div>
+            <div class="reports-toolbar animate-on-scroll">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchReports" placeholder="Buscar reportes..." oninput="filterReports()">
+                </div>
+                <div class="filter-group">
+                    <select id="filterCategory" onchange="filterReports()">
+                        <option value="">Todas las categorías</option>
+                        <option value="contaminacion">Contaminación</option>
+                        <option value="pesca_ilegal">Pesca Ilegal</option>
+                        <option value="derrame">Derrame</option>
+                        <option value="residuos">Residuos Plásticos</option>
+                        <option value="biodiversidad">Pérdida de Biodiversidad</option>
+                        <option value="coral">Daño a Corales</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                    <select id="filterStatus" onchange="filterReports()">
+                        <option value="">Todos los estados</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="revision">En Revisión</option>
+                        <option value="proceso">En Proceso</option>
+                        <option value="resuelto">Resuelto</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="handleNewReport()">
+                    <i class="fas fa-plus"></i> Nuevo Reporte
+                </button>
+            </div>
+            <div class="reports-grid" id="reportsList"></div>
+        </div>
+    </section>
+
+    <!-- MAP -->
+    <section class="section" id="sectionMap">
+        <div class="container page-section">
+            <div class="section-header animate-on-scroll">
+                <span class="section-tag">Mapa Interactivo</span>
+                <h2>Ubicación de Reportes</h2>
+                <p>Visualiza todos los reportes en el mapa mundial</p>
+            </div>
+            <div class="map-container animate-on-scroll">
+                <div class="map-legend">
+                    <h4><i class="fas fa-layer-group"></i> Leyenda</h4>
+                    <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span> Contaminación
+                    </div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> Pesca Ilegal
+                    </div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#8b5cf6"></span> Derrame</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span> Residuos
+                        Plásticos</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#10b981"></span> Biodiversidad
+                    </div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#ec4899"></span> Daño a Corales
+                    </div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#6b7280"></span> Otro</div>
+                </div>
+                <div id="mainMap" class="map-view"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="section" id="sectionStats">
+        <div class="container page-section">
+            <div class="section-header animate-on-scroll">
+                <span class="section-tag">Datos</span>
+                <h2>Estadísticas</h2>
+                <p>Métricas e impacto de nuestra comunidad</p>
+            </div>
+            <div class="stats-grid animate-on-scroll">
+                <div class="stat-card glass-card">
+                    <div class="stat-icon" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)"><i
+                            class="fas fa-file-alt"></i></div>
+                    <div class="stat-info">
+                        <h3 id="totalReportsStat">0</h3>
+                        <p>Total Reportes</p>
+                    </div>
+                </div>
+                <div class="stat-card glass-card">
+                    <div class="stat-icon" style="background:linear-gradient(135deg,#10b981,#047857)"><i
+                            class="fas fa-check-circle"></i></div>
+                    <div class="stat-info">
+                        <h3 id="resolvedStat">0</h3>
+                        <p>Resueltos</p>
+                    </div>
+                </div>
+                <div class="stat-card glass-card">
+                    <div class="stat-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i
+                            class="fas fa-clock"></i></div>
+                    <div class="stat-info">
+                        <h3 id="pendingStat">0</h3>
+                        <p>Pendientes</p>
+                    </div>
+                </div>
+                <div class="stat-card glass-card">
+                    <div class="stat-icon" style="background:linear-gradient(135deg,#ec4899,#be185d)"><i
+                            class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-info">
+                        <h3 id="criticalStat">0</h3>
+                        <p>Críticos</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Impact Score -->
+            <div class="impact-section animate-on-scroll" style="margin:40px 0">
+                <div
+                    style="background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(6,182,212,0.1));border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-lg);padding:32px;text-align:center">
+                    <h3 style="color:var(--white);margin-bottom:16px;font-family:var(--font-display)">
+                        <i class="fas fa-leaf" style="color:var(--success);margin-right:8px"></i>
+                        Impacto Ambiental
+                    </h3>
+                    <p style="color:var(--gray-light);margin-bottom:24px">
+                        Gracias a la comunidad ODS 14, hemos documentado y gestionado múltiples amenazas ambientales
+                        marinas.
+                    </p>
+                    <div
+                        style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:24px;margin-top:24px">
+                        <div class="impact-item">
+                            <div style="font-size:2.5rem;font-weight:700;color:var(--success)" id="impactScore">85%
+                            </div>
+                            <div style="color:var(--gray-light);font-size:0.9rem">Tasa de Resolución</div>
+                        </div>
+                        <div class="impact-item">
+                            <div style="font-size:2.5rem;font-weight:700;color:var(--primary-light)" id="impactReports">
+                                0</div>
+                            <div style="color:var(--gray-light);font-size:0.9rem">Reportes este mes</div>
+                        </div>
+                        <div class="impact-item">
+                            <div style="font-size:2.5rem;font-weight:700;color:var(--warning)" id="impactActive">0</div>
+                            <div style="color:var(--gray-light);font-size:0.9rem">En proceso</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="charts-grid animate-on-scroll">
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-pie"></i> Reportes por Categoría</h3>
+                    <div class="chart-placeholder" id="categoryChart"></div>
+                </div>
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-bar"></i> Reportes por Estado</h3>
+                    <div class="chart-placeholder" id="statusChart"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="section" id="sectionAbout">
+        <div class="container page-section">
+            <div class="section-header animate-on-scroll">
+                <span class="section-tag">ODS 14</span>
+                <h2>Vida Submarina</h2>
+                <p>Conservar y utilizar sosteniblemente los océanos</p>
+            </div>
+            <div class="about-content animate-on-scroll">
+                <div class="about-card">
+                    <div class="about-icon">🌊</div>
+                    <h3>¿Qué es el ODS 14?</h3>
+                    <p>El Objetivo de Desarrollo Sostenible 14 busca conservar y utilizar sosteniblemente los océanos,
+                        los mares y los recursos marinos. Los océanos cubren más del 70% de nuestro planeta.</p>
+                </div>
+                <div class="about-card">
+                    <div class="about-icon">🎯</div>
+                    <h3>Metas Principales</h3>
+                    <ul class="about-list">
+                        <li>Prevenir y reducir la contaminación marina</li>
+                        <li>Proteger los ecosistemas marinos y costeros</li>
+                        <li>Minimizar la acidificación de los océanos</li>
+                        <li>Regular la pesca y poner fin a la pesca excesiva</li>
+                        <li>Conservar al menos el 10% de las zonas costeras</li>
+                    </ul>
+                </div>
+                <div class="about-card">
+                    <div class="about-icon">🤝</div>
+                    <h3>¿Cómo puedes ayudar?</h3>
+                    <p>Este sistema permite a ciudadanos reportar amenazas a los ecosistemas marinos, creando una red de
+                        vigilancia comunitaria para documentar y resolver problemas ambientales.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MY REPORTS -->
+    <section class="section" id="sectionMyreports">
+        <div class="container page-section">
+            <div class="section-header animate-on-scroll">
+                <span class="section-tag">Mi Cuenta</span>
+                <h2>Mis Reportes</h2>
+                <p>Gestiona tus reportes enviados</p>
+            </div>
+            <div class="reports-grid" id="myReportsList"></div>
+        </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section class="section" id="sectionProfile">
+        <div class="container page-section">
+            <div class="section-header animate-on-scroll">
+                <span class="section-tag">Cuenta</span>
+                <h2>Mi Perfil</h2>
+            </div>
+            <div class="profile-card animate-on-scroll">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatar">U</div>
+                    <div class="profile-info">
+                        <h3 id="profileName">Usuario</h3>
+                        <p id="profileEmail">email@ejemplo.com</p>
+                        <span class="profile-badge" id="profileBadge">Usuario</span>
+                    </div>
+                </div>
+                <div class="profile-stats">
+                    <div class="profile-stat"><strong id="profileReports">0</strong><span>Reportes</span></div>
+                    <div class="profile-stat"><strong id="profileDate">-</strong><span>Miembro desde</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== ADMIN PANEL ==================== -->
+    <section class="section" id="sectionAdmin">
+        <div class="container page-section">
+            <div class="admin-header animate-on-scroll">
+                <div class="section-header">
+                    <span class="section-tag"><i class="fas fa-shield-alt"></i> Administrador</span>
+                    <h2>Panel de Administración</h2>
+                    <p>Gestiona reportes, usuarios y configuraciones del sistema</p>
+                </div>
+            </div>
+
+            <div class="admin-tabs animate-on-scroll">
+                <button class="admin-tab active" onclick="switchAdminTab('adminReports')">
+                    <i class="fas fa-file-alt"></i> Reportes
+                </button>
+                <button class="admin-tab" onclick="switchAdminTab('adminUsers')">
+                    <i class="fas fa-users"></i> Usuarios
+                </button>
+                <button class="admin-tab" onclick="switchAdminTab('adminOverview')">
+                    <i class="fas fa-chart-pie"></i> Resumen
+                </button>
+            </div>
+
+            <!-- Admin Reports -->
+            <div class="admin-panel active" id="adminReports">
+                <div class="admin-toolbar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="adminSearchReports" placeholder="Buscar reportes..."
+                            oninput="filterAdminReports()">
+                    </div>
+                    <select id="adminFilterStatus" onchange="filterAdminReports()">
+                        <option value="">Todos los estados</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="revision">En Revisión</option>
+                        <option value="proceso">En Proceso</option>
+                        <option value="resuelto">Resuelto</option>
+                    </select>
+                    <button class="btn btn-outline" onclick="exportReportsToCSV()">
+                        <i class="fas fa-download"></i> Exportar CSV
+                    </button>
+                </div>
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Título</th>
+                                <th>Categoría</th>
+                                <th>Usuario</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminReportsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin Users -->
+            <div class="admin-panel" id="adminUsers">
+                <div class="admin-toolbar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="adminSearchUsers" placeholder="Buscar usuarios..."
+                            oninput="renderAdminUsers()">
+                    </div>
+                </div>
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Avatar</th>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Rol</th>
+                                <th>Reportes</th>
+                                <th>Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUsersTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin Overview -->
+            <div class="admin-panel" id="adminOverview">
+                <div class="admin-overview-grid">
+                    <div class="overview-card">
+                        <div class="overview-icon"><i class="fas fa-file-alt"></i></div>
+                        <h3 id="overviewTotal">0</h3>
+                        <p>Total Reportes</p>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-icon" style="background:linear-gradient(135deg,#10b981,#047857)"><i
+                                class="fas fa-check"></i></div>
+                        <h3 id="overviewResolved">0</h3>
+                        <p>Resueltos</p>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i
+                                class="fas fa-hourglass-half"></i></div>
+                        <h3 id="overviewPending">0</h3>
+                        <p>Pendientes</p>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-icon" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)"><i
+                                class="fas fa-users"></i></div>
+                        <h3 id="overviewUsers">0</h3>
+                        <p>Usuarios</p>
+                    </div>
+                </div>
+                <div class="admin-activity">
+                    <h3><i class="fas fa-history"></i> Actividad Reciente</h3>
+                    <div class="activity-list" id="activityList"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal animate-modal">
+            <button class="modal-close" onclick="closeModal('loginModal')">&times;</button>
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fas fa-sign-in-alt"></i></div>
+                <h2>Iniciar Sesión</h2>
+                <p>Accede a tu cuenta para gestionar reportes</p>
+            </div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Correo Electrónico</label>
+                    <input type="email" id="loginEmail" required placeholder="tu@email.com">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Contraseña</label>
+                    <div class="password-input">
+                        <input type="password" id="loginPassword" required placeholder="Tu contraseña">
+                        <button type="button" class="toggle-password" onclick="togglePassword('loginPassword')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                </button>
+            </form>
+            <div class="modal-footer">
+                <p>¿No tienes cuenta? <a href="#" onclick="switchModal('loginModal','registerModal')">Regístrate
+                        aquí</a></p>
+            </div>
+            <div class="admin-hint">
+                <i class="fas fa-info-circle"></i> Admin: admin@ods14.com / admin123
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal animate-modal">
+            <button class="modal-close" onclick="closeModal('registerModal')">&times;</button>
+            <div class="modal-header">
+                <div class="modal-icon" style="background:linear-gradient(135deg,#10b981,#047857)">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h2>Crear Cuenta</h2>
+                <p>Únete a nuestra comunidad marina</p>
+            </div>
+            <form onsubmit="handleRegister(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Nombre</label>
+                        <input type="text" id="regName" required placeholder="Tu nombre">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Apellido</label>
+                        <input type="text" id="regLastname" required placeholder="Tu apellido">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Correo Electrónico</label>
+                    <input type="email" id="regEmail" required placeholder="tu@email.com">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Contraseña</label>
+                    <div class="password-input">
+                        <input type="password" id="regPassword" required placeholder="Mín. 6 caracteres" minlength="6">
+                        <button type="button" class="toggle-password" onclick="togglePassword('regPassword')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Confirmar Contraseña</label>
+                    <input type="password" id="regPassword2" required placeholder="Repite tu contraseña">
+                </div>
+                <button type="submit" class="btn btn-primary btn-full"
+                    style="background:linear-gradient(135deg,#10b981,#047857)">
+                    <i class="fas fa-user-plus"></i> Crear Cuenta
+                </button>
+            </form>
+            <div class="modal-footer">
+                <p>¿Ya tienes cuenta? <a href="#" onclick="switchModal('registerModal','loginModal')">Inicia sesión</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Report Modal -->
+    <div class="modal-overlay" id="reportModal">
+        <div class="modal modal-lg animate-modal">
+            <button class="modal-close" onclick="closeModal('reportModal')">&times;</button>
+            <div class="modal-header">
+                <div class="modal-icon" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <h2>Nuevo Reporte</h2>
+                <p>Documenta una amenaza al ecosistema marino</p>
+            </div>
+            <form onsubmit="handleNewReportSubmit(event)">
+                <div class="form-group">
+                    <label><i class="fas fa-heading"></i> Título del Reporte *</label>
+                    <input type="text" id="reportTitle" required placeholder="Ej: Derrame de petróleo en costa norte">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-tag"></i> Categoría *</label>
+                        <select id="reportCategory" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="contaminacion">🏭 Contaminación</option>
+                            <option value="pesca_ilegal">🎣 Pesca Ilegal</option>
+                            <option value="derrame">🛢️ Derrame</option>
+                            <option value="residuos">♻️ Residuos Plásticos</option>
+                            <option value="biodiversidad">🐠 Pérdida de Biodiversidad</option>
+                            <option value="coral">🪸 Daño a Corales</option>
+                            <option value="otro">📋 Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-exclamation-triangle"></i> Severidad *</label>
+                        <select id="reportSeverity" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="baja">🟢 Baja</option>
+                            <option value="media">🟡 Media</option>
+                            <option value="alta">🟠 Alta</option>
+                            <option value="critica">🔴 Crítica</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-align-left"></i> Descripción *</label>
+                    <textarea id="reportDescription" required rows="4"
+                        placeholder="Describe detalladamente la situación observada..."></textarea>
+                </div>
+
+                <!-- LOCATION SECTION -->
+                <div class="form-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Ubicación * <small>(Haz clic en el mapa o usa tu
+                            ubicación)</small></label>
+                    <button type="button" class="btn btn-geolocation" onclick="useMyLocation()">
+                        <i class="fas fa-crosshairs"></i>
+                        <span id="geoButtonText">Usar mi ubicación actual</span>
+                        <div class="geo-spinner" id="geoSpinner" style="display:none"></div>
+                    </button>
+                    <div id="reportMap" class="report-map"></div>
+                    <div class="coords-display">
+                        <span><i class="fas fa-map-pin"></i> <strong>Lat:</strong> <span id="reportLat">-</span></span>
+                        <span><i class="fas fa-map-pin"></i> <strong>Lng:</strong> <span id="reportLng">-</span></span>
+                    </div>
+                    <input type="hidden" id="reportLatInput">
+                    <input type="hidden" id="reportLngInput">
+                </div>
+
+                <!-- IMAGE SECTION -->
+                <div class="form-group">
+                    <label><i class="fas fa-image"></i> Evidencia fotográfica <small>(opcional)</small></label>
+                    <div class="image-upload-area">
+                        <div class="upload-tabs">
+                            <button type="button" class="upload-tab active" onclick="switchUploadTab('file')">
+                                <i class="fas fa-upload"></i> Subir archivo
+                            </button>
+                            <button type="button" class="upload-tab" onclick="switchUploadTab('url')">
+                                <i class="fas fa-link"></i> URL de imagen
+                            </button>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div class="upload-panel active" id="uploadFile">
+                            <div class="file-drop-zone" id="fileDropZone"
+                                onclick="document.getElementById('reportImageFile').click()">
+                                <div class="drop-zone-content" id="dropZoneContent">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p><strong>Haz clic o arrastra</strong> una imagen aquí</p>
+                                    <span>JPG, PNG, GIF — Máx 5MB</span>
+                                </div>
+                                <div class="drop-zone-preview" id="dropZonePreview" style="display:none">
+                                    <img id="imagePreviewImg" src="" alt="Preview">
+                                    <button type="button" class="remove-image-btn" onclick="removeUploadedImage(event)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <input type="file" id="reportImageFile" accept="image/*" style="display:none"
+                                onchange="handleFileSelect(event)">
+                        </div>
+
+                        <!-- URL Input -->
+                        <div class="upload-panel" id="uploadUrl">
+                            <input type="url" id="reportImageUrl" placeholder="https://ejemplo.com/imagen.jpg">
+                            <div class="url-preview" id="urlPreview" style="display:none">
+                                <img id="urlPreviewImg" src="" alt="Preview">
+                            </div>
+                        </div>
+                    </div>
+                    <p class="form-hint">
+                        <i class="fas fa-info-circle"></i> Si no subes imagen, se usará una imagen representativa de la
+                        categoría seleccionada.
+                    </p>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-paper-plane"></i> Enviar Reporte
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Report Modal -->
+    <div class="modal-overlay" id="viewReportModal">
+        <div class="modal modal-lg animate-modal">
+            <button class="modal-close" onclick="closeModal('viewReportModal')">&times;</button>
+            <div id="viewReportContent"></div>
+        </div>
+    </div>
+
+    <!-- Edit Report Modal (Admin) -->
+    <div class="modal-overlay" id="editReportModal">
+        <div class="modal animate-modal">
+            <button class="modal-close" onclick="closeModal('editReportModal')">&times;</button>
+            <div class="modal-header">
+                <div class="modal-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <h2>Editar Reporte</h2>
+            </div>
+            <form onsubmit="handleEditReport(event)">
+                <input type="hidden" id="editReportId">
+                <div class="form-group">
+                    <label>Título</label>
+                    <input type="text" id="editTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="editCategory" required>
+                        <option value="contaminacion">Contaminación</option>
+                        <option value="pesca_ilegal">Pesca Ilegal</option>
+                        <option value="derrame">Derrame</option>
+                        <option value="residuos">Residuos Plásticos</option>
+                        <option value="biodiversidad">Pérdida de Biodiversidad</option>
+                        <option value="coral">Daño a Corales</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select id="editStatus" required>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="revision">En Revisión</option>
+                        <option value="proceso">En Proceso</option>
+                        <option value="resuelto">Resuelto</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Severidad</label>
+                    <select id="editSeverity" required>
+                        <option value="baja">Baja</option>
+                        <option value="media">Media</option>
+                        <option value="alta">Alta</option>
+                        <option value="critica">Crítica</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="editDescription" required rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Nota del Administrador</label>
+                    <textarea id="editAdminNote" rows="3" placeholder="Agregar nota..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full"
+                    style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal animate-modal" style="max-width:400px">
+            <div class="modal-header" style="margin-bottom:20px">
+                <div class="modal-icon" id="confirmIcon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <h2 id="confirmTitle">Confirmar Acción</h2>
+                <p id="confirmMessage">¿Estás seguro de realizar esta acción?</p>
+            </div>
+            <div style="display:flex;gap:12px">
+                <button class="btn btn-outline btn-full" onclick="closeConfirmModal()" style="flex:1">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button class="btn btn-primary btn-full" id="confirmAction" style="flex:1">
+                    <i class="fas fa-check"></i> Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Action FAB -->
+    <button class="fab-button" id="fabButton" onclick="handleNewReport()" title="Crear reporte rápido">
+        <i class="fas fa-plus"></i>
+    </button>
+    <!-- Footer -->
+    <footer class="footer" id="mainFooter">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="nav-logo">
+                        <div class="logo-icon"><i class="fas fa-water"></i></div>
+                        <span>ODS <strong>14</strong></span>
+                    </div>
+                    <p>Sistema de reportes para la conservación de los ecosistemas marinos. Parte de los Objetivos de
+                        Desarrollo Sostenible de la ONU.</p>
+                    <div style="display:flex;gap:12px;margin-top:16px">
+                        <a href="https://twitter.com" target="_blank"
+                            style="width:40px;height:40px;border-radius:50%;background:var(--glass);display:flex;align-items:center;justify-content:center;color:var(--white);text-decoration:none;transition:all 0.3s"><i
+                                class="fab fa-twitter"></i></a>
+                        <a href="https://facebook.com" target="_blank"
+                            style="width:40px;height:40px;border-radius:50%;background:var(--glass);display:flex;align-items:center;justify-content:center;color:var(--white);text-decoration:none;transition:all 0.3s"><i
+                                class="fab fa-facebook-f"></i></a>
+                        <a href="https://instagram.com" target="_blank"
+                            style="width:40px;height:40px;border-radius:50%;background:var(--glass);display:flex;align-items:center;justify-content:center;color:var(--white);text-decoration:none;transition:all 0.3s"><i
+                                class="fab fa-instagram"></i></a>
+                        <a href="https://github.com" target="_blank"
+                            style="width:40px;height:40px;border-radius:50%;background:var(--glass);display:flex;align-items:center;justify-content:center;color:var(--white);text-decoration:none;transition:all 0.3s"><i
+                                class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Navegación</h4>
+                    <a href="#" onclick="showSection('home')"><i class="fas fa-home" style="width:20px"></i> Inicio</a>
+                    <a href="#" onclick="showSection('reports')"><i class="fas fa-clipboard-list"
+                            style="width:20px"></i> Reportes</a>
+                    <a href="#" onclick="showSection('map')"><i class="fas fa-map-marked-alt" style="width:20px"></i>
+                        Mapa</a>
+                    <a href="#" onclick="showSection('stats')"><i class="fas fa-chart-bar" style="width:20px"></i>
+                        Estadísticas</a>
+                    <a href="#" onclick="showSection('about')"><i class="fas fa-info-circle" style="width:20px"></i>
+                        Acerca de</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Recursos ODS 14</h4>
+                    <a href="https://sdgs.un.org/goals/goal14" target="_blank"><i class="fas fa-globe"
+                            style="width:20px"></i> ONU - ODS 14</a>
+                    <a href="https://www.worldwildlife.org/initiatives/oceans" target="_blank"><i class="fas fa-paw"
+                            style="width:20px"></i> WWF Océanos</a>
+                    <a href="https://oceana.org/" target="_blank"><i class="fas fa-water" style="width:20px"></i>
+                        Oceana</a>
+                    <a href="https://www.oceanconservancy.org/" target="_blank"><i class="fas fa-leaf"
+                            style="width:20px"></i> Ocean Conservancy</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p><i class="fas fa-heart" style="color:#ef4444"></i> Hecho con pasión por la conservación marina |
+                    &copy; 2024 ODS 14 - Vida Submarina</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>
