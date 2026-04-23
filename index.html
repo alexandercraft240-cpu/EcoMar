@@ -915,6 +915,22 @@
     </footer>
 
     <script src="js/app.js"></script>
+
+    <script src="https://unpkg.com/statsig-js/dist/statsig-js-client.min.js"></script>
+
+    <script>
+        const { Statsig } = window.statsig;
+
+        Statsig.initialize("client-2dVqJ4Zm8BomSSX4I9X7sWAuHZDdNJScl9SQDMPnHE7", {
+            userID: "usuario_demo"
+        }).then(() => {
+            console.log("Statsig conectado ✅");
+
+            // Evento de prueba
+            Statsig.logEvent("pagina_cargada");
+        });
+    </script>
+
 </body>
 
 </html>
