@@ -919,15 +919,20 @@
     <script src="https://unpkg.com/statsig-js/dist/statsig-js-client.min.js"></script>
 
     <script>
-        const { Statsig } = window.statsig;
+        window.addEventListener("load", function () {
+            const Statsig = window.statsig?.Statsig;
 
-        Statsig.initialize("client-2dVqJ4Zm8BomSSX4I9X7sWAuHZDdNJScl9SQDMPnHE7", {
-            userID: "usuario_demo"
-        }).then(() => {
-            console.log("Statsig conectado ✅");
+            if (!Statsig) {
+                console.error("Statsig no cargó ❌");
+                return;
+            }
 
-            // Evento de prueba
-            Statsig.logEvent("pagina_cargada");
+            Statsig.initialize("client-2dVqJ4Zm8BomSSX4I9X7sWAuHZDdNJScl9SQDMPnHE7", {
+                userID: "usuario_demo"
+            }).then(() => {
+                console.log("Statsig conectado ✅");
+                Statsig.logEvent("pagina_cargada");
+            });
         });
     </script>
 
